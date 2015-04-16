@@ -6,7 +6,7 @@ of the Socket.IO website.
 
 # How to run:
 
-	git clone 
+	git clone git@github.com:PauloLuan/node-chat-example.git chat-example
 	cd chat-example
 	npm install && npm install -g nodemon
 	nodemon server.js
