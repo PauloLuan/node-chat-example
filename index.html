@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+<head>
+    <title>Socket.IO chat</title>
+
+    <script src='https://cdn.socket.io/socket.io-1.2.0.js'></script>
+    <script src='http://code.jquery.com/jquery-1.11.1.js'></script>
+
+</head>
+<body>
+	<form action=''>
+	    <input id='m' autocomplete='off'/>
+	    <button>Send</button>
+	</form>
+	<ul id='messages'></ul>
+
+	<script>
+		$(document).ready(function () {
+		    var socket = io();
+
+		    var id = Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+		    socket.emit('personOnline', id);
+
+		    $('form').submit(function () {
+		        var sendObject = {};
+		        sendObject.message = $('#m').val();
+		        sendObject.sender = id;
+
+		        socket.emit('message', sendObject);
+		        $('#m').val('');
+		        return false;
+		    });
+
+		    socket.on('message', function (receivedMessage) {
+		        var isMyself = receivedMessage.sender === id;
+		        var message = '';
+
+		        if (isMyself) {
+		            message += 'eu: ' + receivedMessage.message;
+		        } else {
+		            message += receivedMessage.sender + ' diz: ' + receivedMessage.message;
+		        }
+
+		        $('#messages').append($('<li>').text(message));
+		    });
+
+		    socket.on('personOnline', function (personWhoEnter) {
+		        var message = personWhoEnter.name + ' Entrou no chat!';
+		        $('#messages').append($('<li>').text(message));
+		    });
+
+		    socket.on('personOffline', function (personWhoExit) {
+		        var message = personWhoExit.name + ' Saiu do chat! :(';
+		        $('#messages').append($('<li>').text(message));
+		    });
+
+		    $(window).on('beforeunload', function(){
+		    	socket.emit('personOffline', id);
+		    });
+		});
+	</script>
+</body>
+</html>
